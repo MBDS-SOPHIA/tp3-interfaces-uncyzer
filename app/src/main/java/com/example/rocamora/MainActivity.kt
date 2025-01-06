@@ -1,20 +1,25 @@
 package com.example.rocamora
 
+import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.widget.Button
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.slider.Slider
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import nl.dionsegijn.konfetti.xml.KonfettiView
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-    private var targetValue = 1
+    private var targetValue = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val rollButton: Button = findViewById(R.id.button)
         val slider: Slider = findViewById(R.id.numberSlider)
         val targetValueText: TextView = findViewById(R.id.targetValue)
 
@@ -23,11 +28,8 @@ class MainActivity : AppCompatActivity() {
         slider.addOnChangeListener { _, value, _ ->
             targetValue = value.toInt()
             targetValueText.text = getString(R.string.target_value, targetValue)
-            rollButton.isEnabled = true
-            rollButton.callOnClick()
+            rollDice()
         }
-
-        rollButton.setOnClickListener { rollDice() }
     }
 
     private fun rollDice() {
@@ -38,6 +40,13 @@ class MainActivity : AppCompatActivity() {
         )
 
         val resultText: TextView = findViewById(R.id.resultText)
+        val konfettiView: KonfettiView = findViewById(R.id.konfettiView)
+
+        // Animation de secouement des dés
+        diceImages.forEach { diceImage ->
+            val shakeAnimation = AnimationUtils.loadAnimation(this, R.anim.shake_animation)
+            diceImage.startAnimation(shakeAnimation)
+        }
 
         val rolls = diceImages.map { dice.roll() }
 
@@ -49,7 +58,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        resultText.text = if (rolls.sum() == targetValue) {
+        val isWin = rolls.sum() == targetValue
+        resultText.text = if (isWin) {
+            // Lance les confettis si c'est gagné
+            val party = Party(
+                speed = 0f,
+                maxSpeed = 30f,
+                damping = 0.9f,
+                spread = 360,
+                colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
+                emitter = Emitter(duration = 100, TimeUnit.MILLISECONDS).max(100),
+                position = Position.Relative(0.5, 0.9)
+            )
+            konfettiView.start(party)
             getString(R.string.win_message)
         } else {
             getString(R.string.lose_message)
@@ -67,7 +88,6 @@ class MainActivity : AppCompatActivity() {
 }
 
 class Dice(private val numSides: Int) {
-
     fun roll(): Int {
         return (1..numSides).random()
     }
