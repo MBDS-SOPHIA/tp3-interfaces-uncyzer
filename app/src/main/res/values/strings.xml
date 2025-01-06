@@ -4,4 +4,6 @@
     <string name="click_to_try">Click to try your odds!</string>
     <string name="win_message">You won, lucky human :)</string>
     <string name="lose_message">You lost, sad one, try again</string>
+    <string name="select_target">Select your target number:</string>
+    <string name="target_value">Target: %d</string>
 </resources>

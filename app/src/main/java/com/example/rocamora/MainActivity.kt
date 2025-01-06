@@ -5,18 +5,29 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.slider.Slider
 
 class MainActivity : AppCompatActivity() {
+    private var targetValue = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val rollButton: Button = findViewById(R.id.button)
+        val slider: Slider = findViewById(R.id.numberSlider)
+        val targetValueText: TextView = findViewById(R.id.targetValue)
+
+        targetValueText.text = getString(R.string.target_value, targetValue)
+
+        slider.addOnChangeListener { _, value, _ ->
+            targetValue = value.toInt()
+            targetValueText.text = getString(R.string.target_value, targetValue)
+            rollButton.isEnabled = true
+            rollButton.callOnClick()
+        }
 
         rollButton.setOnClickListener { rollDice() }
-
-        rollDice()
     }
 
     private fun rollDice() {
@@ -28,10 +39,8 @@ class MainActivity : AppCompatActivity() {
 
         val resultText: TextView = findViewById(R.id.resultText)
 
-        // Roll both dice and store results
         val rolls = diceImages.map { dice.roll() }
 
-        // Update images and get results
         rolls.forEachIndexed { index, roll ->
             val drawableResource = getDiceDrawable(roll)
             diceImages[index].apply {
@@ -40,8 +49,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Check if dice show same number
-        resultText.text = if (rolls[0] == rolls[1]) {
+        resultText.text = if (rolls.sum() == targetValue) {
             getString(R.string.win_message)
         } else {
             getString(R.string.lose_message)
@@ -56,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         5 -> R.drawable.dice_5
         else -> R.drawable.dice_6
     }
-
 }
 
 class Dice(private val numSides: Int) {
