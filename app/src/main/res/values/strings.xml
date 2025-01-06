@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">rocamora</string>
     <string name="roll">Roll</string>
+    <string name="click_to_try">Click to try your odds!</string>
+    <string name="win_message">You won, lucky human :)</string>
+    <string name="lose_message">You lost, sad one, try again</string>
 </resources>
